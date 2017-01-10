@@ -1,5 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    raise ImportError("Cython seems to be required for clean install.")
 
 try:
     from setuptools import setup, Extension
@@ -23,6 +27,13 @@ install_requires = ['fastcluster',
                     'zope.index',
                     'Levenshtein_search']
 
+extensions = [
+    Extension(
+        'dedupe.cpredicates',
+        ['src/cpredicates.pyx'],
+    ),
+]
+
 setup(
     name='dedupe',
     url='https://github.com/dedupeio/dedupe',
@@ -31,7 +42,8 @@ setup(
     author_email='fgregg@datamade.us',
     description='A python library for accurate and scaleable data deduplication and entity-resolution',
     packages=['dedupe', 'dedupe.variables'],
-    ext_modules=[Extension('dedupe.cpredicates', ['src/cpredicates.c'])],
+    include_package_data=True,
+    ext_modules=cythonize(extensions),
     install_requires=install_requires,
     classifiers=[
         'Development Status :: 4 - Beta',
